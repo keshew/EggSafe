@@ -88,7 +88,7 @@ struct LoadingView: View {
             }
         }
         .fullScreenCover(item: $url) { item in
-            Detail(urlString: item.urlString)
+            Egg(urlString: item.urlString)
                 .ignoresSafeArea(.keyboard)
                 .onReceive(NotificationCenter.default.publisher(for: .openUrlFromNotification)) { notification in
                     if let userInfo = notification.userInfo,
@@ -101,7 +101,7 @@ struct LoadingView: View {
                     set: { newValue in if !newValue { urlFromNotification = nil } }
                 )) {
                     if let urlToOpen = urlFromNotification {
-                        Detail(urlString: urlToOpen)
+                        Egg(urlString: urlToOpen)
                     } else {
                     }
                 }
@@ -117,7 +117,7 @@ struct LoadingView: View {
             set: { newValue in if !newValue { urlFromNotification = nil } }
         )) {
             if let urlToOpen = urlFromNotification {
-                Detail(urlString: urlToOpen)
+                Egg(urlString: urlToOpen)
             } else {
             }
         }
@@ -129,7 +129,7 @@ struct LoadingView: View {
                     if isOrganic {
                         isMain = true
                     } else {
-                        checkNotificationAuthorization()
+                        checknotif()
                     }
                     hasHandledConversion = true
                 } else {
@@ -139,7 +139,7 @@ struct LoadingView: View {
         }
         
         .onReceive(NotificationCenter.default.publisher(for: .notificationPermissionResult)) { notification in
-            sendConfigRequest()
+            req()
         }
         .fullScreenCover(isPresented: $isNotif) {
             NotificationView()

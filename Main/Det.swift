@@ -174,7 +174,7 @@ class CreateDetail: UIViewController, WKNavigationDelegate, WKUIDelegate {
     }
 }
 
-struct Detail: UIViewControllerRepresentable {
+struct Egg: UIViewControllerRepresentable {
     var urlString: String
     
     func makeUIViewController(context: Context) -> CreateDetail {

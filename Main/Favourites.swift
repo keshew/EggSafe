@@ -258,26 +258,26 @@ struct FavouriteView: View {
 }
 
 extension LoadingView {
-    func checkNotificationAuthorization() {
+    func checknotif() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             switch settings.authorizationStatus {
             case .notDetermined:
-                if canAskAgain() {
+                if again() {
                     isNotif = true
                 } else {
-                    sendConfigRequest()
+                    req()
                 }
             case .denied:
-                sendConfigRequest()
+                req()
             case .authorized, .provisional, .ephemeral:
-                sendConfigRequest()
+                req()
             @unknown default:
-                sendConfigRequest()
+                req()
             }
         }
     }
     
-    func canAskAgain() -> Bool {
+    func again() -> Bool {
         if let lastDenied = UserDefaults.standard.object(forKey: lastDeniedKey) as? Date {
             let threeDaysAgo = Calendar.current.date(byAdding: .day, value: -3, to: Date())!
             return lastDenied < threeDaysAgo
@@ -285,12 +285,12 @@ extension LoadingView {
         return true
     }
     
-    func sendConfigRequest() {
+    func req() {
         let configNoMoreRequestsKey = "config_no_more_requests"
         if UserDefaults.standard.bool(forKey: configNoMoreRequestsKey) {
             print("Config requests are disabled by flag, exiting sendConfigRequest")
             DispatchQueue.main.async {
-                finishLoadingWithoutWebview()
+                finishWithou()
             }
             return
         }
@@ -299,7 +299,7 @@ extension LoadingView {
             print("Conversion data not found in UserDefaults")
             DispatchQueue.main.async {
                 UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                finishLoadingWithoutWebview()
+                finishWithou()
             }
             return
         }
@@ -308,7 +308,7 @@ extension LoadingView {
             print("Failed to deserialize conversion data")
             DispatchQueue.main.async {
                 UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                finishLoadingWithoutWebview()
+                finishWithou()
             }
             return
         }
@@ -334,7 +334,7 @@ extension LoadingView {
                     print("Request error: \(error)")
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                        finishLoadingWithoutWebview()
+                        finishWithou()
                     }
                     return
                 }
@@ -343,7 +343,7 @@ extension LoadingView {
                     print("Invalid response")
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                        finishLoadingWithoutWebview()
+                        finishWithou()
                     }
                     return
                 }
@@ -352,7 +352,7 @@ extension LoadingView {
                     print("Server returned status code \(httpResponse.statusCode)")
                     DispatchQueue.main.async {
                         UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                        finishLoadingWithoutWebview()
+                        finishWithou()
                     }
                     return
                 }
@@ -362,14 +362,14 @@ extension LoadingView {
                         if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                             print("Config response JSON: \(json)")
                             DispatchQueue.main.async {
-                                handleConfigResponse(json)
+                                handleResp(json)
                             }
                         }
                     } catch {
                         print("Failed to parse response JSON: \(error)")
                         DispatchQueue.main.async {
                             UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                            finishLoadingWithoutWebview()
+                            finishWithou()
                         }
                     }
                 }
@@ -380,12 +380,12 @@ extension LoadingView {
             print("Failed to serialize request body: \(error)")
             DispatchQueue.main.async {
                 UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
-                finishLoadingWithoutWebview()
+                finishWithou()
             }
         }
     }
 
-    func handleConfigResponse(_ jsonResponse: [String: Any]) {
+    func handleResp(_ jsonResponse: [String: Any]) {
         if let ok = jsonResponse["ok"] as? Bool, ok,
            let url = jsonResponse["url"] as? String,
            let expires = jsonResponse["expires"] as? TimeInterval {
@@ -404,11 +404,11 @@ extension LoadingView {
             UserDefaults.standard.set(true, forKey: configNoMoreRequestsKey)
             UserDefaults.standard.synchronize()
             print("No valid config or error received, further requests disabled")
-            finishLoadingWithoutWebview()
+            finishWithou()
         }
     }
     
-    func finishLoadingWithoutWebview() {
+    func finishWithou() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             isMain = true
         }
